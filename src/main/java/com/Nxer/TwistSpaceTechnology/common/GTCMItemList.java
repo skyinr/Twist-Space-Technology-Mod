@@ -422,10 +422,13 @@ public enum GTCMItemList {
     NuclearReactorStructure0,
     NuclearReactorStructure1,
     NuclearReactorStructure2,
-    NuclearReactorStructure3;
+    NuclearReactorStructure3,
 
     // endregion
 
+    // region Mega Algae Farm
+    MegaAlgaeFarm;
+    // endregion
     // region Member Variables
 
     private boolean mHasNotBeenSet;

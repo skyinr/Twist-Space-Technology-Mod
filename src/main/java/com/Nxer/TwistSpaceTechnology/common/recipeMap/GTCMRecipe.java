@@ -212,4 +212,14 @@ public class GTCMRecipe {
         .disableOptimize()
         .build();
 
+    public static final RecipeMap<RecipeMapBackend> SuperAlgaeRecipe = RecipeMapBuilder
+        .of("tst.recipe.superAlgaeRecipe")
+        .maxIO(0, 16, 2, 6)
+        .dontUseProgressBar()
+        .neiHandlerInfo(builder -> builder.setDisplayStack((GTCMItemList.MegaAlgaeFarm.get(1))))
+        .neiTransferRect(100, 45, 18, 72)
+        .useSpecialSlot()
+        .disableOptimize()
+        .build();
+
 }

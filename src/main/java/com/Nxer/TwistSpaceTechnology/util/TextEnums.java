@@ -141,6 +141,11 @@ public enum TextEnums {
     ModularHatch("ModularHatch"),
     // endregion
 
+    // region Mega Algae Farm
+    NameMegaAlgaeFarm("NameMegaAlgaeFarm"),
+    TooltipMachineType("TooltipMachineType"),
+    // endregion
+
     // start
     BigBroArrayName("BigBroArray.name"),
     BigBroArrayType("BigBroArray.type"),

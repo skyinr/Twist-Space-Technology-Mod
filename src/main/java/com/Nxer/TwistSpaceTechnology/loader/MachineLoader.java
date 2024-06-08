@@ -45,6 +45,7 @@ import com.Nxer.TwistSpaceTechnology.common.machine.TST_LargeCanner;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_LargeIndustrialCokingFactory;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_LargeSteamAlloySmelter;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_LargeSteamForgeHammer;
+import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaAlgaeFarm;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaCraftingCenter;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaMacerator;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MiracleDoor;
@@ -137,6 +138,7 @@ public class MachineLoader {
     public static ItemStack BallLightning;
     public static ItemStack StarcoreMiner;
     public static ItemStack Disassembler;
+    public static ItemStack MegaAlgaeFarm;
 
     public static ItemStack BigBroArray;
     public static ItemStack SpaceApiaryT1;
@@ -635,6 +637,11 @@ public class MachineLoader {
                 TextEnums.tr("NameMassFabricatorGenesis")).getStackForm(1);
             GTCMItemList.MassFabricatorGenesis.set(MassFabricatorGenesis);
 
+        }
+        if (Config.EnableMegaAlgaeFarm) {
+            MegaAlgaeFarm = new TST_MegaAlgaeFarm(19057, "NameMegaAlgaeFarm", TextEnums.NameMegaAlgaeFarm.toString())
+                .getStackForm(1);
+            GTCMItemList.MegaAlgaeFarm.set(MegaAlgaeFarm);
         }
         // endregion
 
