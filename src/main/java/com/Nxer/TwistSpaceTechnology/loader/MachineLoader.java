@@ -6,7 +6,7 @@ import static com.Nxer.TwistSpaceTechnology.config.Config.PowerConsumptionMultip
 import static com.Nxer.TwistSpaceTechnology.config.Config.SpeedMultiplierOfSpeedController;
 import static com.Nxer.TwistSpaceTechnology.util.TextLocalization.NameElvenWorkshop;
 
-import com.Nxer.TwistSpaceTechnology.common.machine.singleBlock.hatch.TST_Hatch_OreFilterInputBus;
+import com.Nxer.TwistSpaceTechnology.common.machine.singleBlock.hatch.TST_Hatch_OreDictInputBus;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.ItemStack;
 
@@ -255,7 +255,7 @@ public class MachineLoader {
 
     public static ItemStack BloodOrbHatch;
 
-    public static ItemStack OreFilterInputHatch;
+    public static ItemStack OreDictInputHatch;
 
     // endregion
 
@@ -1491,14 +1491,14 @@ public class MachineLoader {
                 14).getStackForm(1);
             GTCMItemList.PerfectExecutionCore.set(PerfectExecutionCore);
 
-            // #tr NameOreFilterInputHatch
-            // # Ore Filter Input Hatch
-            // #zh_CN 矿词过滤输入舱
-            OreFilterInputHatch = new TST_Hatch_OreFilterInputBus(
+            // #tr NameOreDictInputHatch
+            // # Ore Dict Input Hatch
+            // #zh_CN 矿典输入舱
+            OreDictInputHatch = new TST_Hatch_OreDictInputBus(
                 18847,
                 "NameOreFilterInputHatch",
                 TextEnums.tr("NameOreFilterInputHatch")).getStackForm(1);
-            GTCMItemList.OreFilterInputHatch.set(OreFilterInputHatch);
+            GTCMItemList.OreFilterInputHatch.set(OreDictInputHatch);
         }
 
         // endregion

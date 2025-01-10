@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import appeng.api.util.AECableType;
 import appeng.core.localization.WailaText;
 import appeng.util.prioitylist.OreFilteredList;
 import com.Nxer.TwistSpaceTechnology.common.GTCMItemList;
@@ -33,6 +34,8 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.gui.modularui.widget.AESlotWidget;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -76,7 +79,7 @@ import gregtech.common.tileentities.machines.ISmartInputHatch;
 import static gregtech.api.enums.GTValues.TIER_COLORS;
 import static gregtech.api.enums.GTValues.VN;
 
-public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements IConfigurationCircuitSupport,
+public class TST_Hatch_OreDictInputBus extends MTEHatchInputBus implements IConfigurationCircuitSupport,
     IRecipeProcessingAwareHatch, IAddGregtechLogo, IAddUIWidgets, IPowerChannelState, ISmartInputHatch, IDataCopyable {
 
     private @Nullable AENetworkProxy gridProxy = null;
@@ -91,15 +94,15 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
     private final int[] savedStackSizes = new int[SLOT_COUNT];
     private static final int CONFIG_WINDOW_ID = 10;
 
-    public static final String COPIED_DATA_IDENTIFIER = "oreFilterStockingBus";
+    public static final String COPIED_DATA_IDENTIFIER = "oreDictStockingBus";
     private @Nullable String oreFilter;
 
-    public TST_Hatch_OreFilterInputBus(int id, String name, String nameRegional) {
-        super(id, name, nameRegional, 14, SLOT_COUNT * 2 + 2);
+    public TST_Hatch_OreDictInputBus(int id, String name, String nameRegional) {
+        super(id, name, nameRegional, 14, SLOT_COUNT * 2 + 2, getDescriptionArray());
         disableSort = true;
     }
 
-    public TST_Hatch_OreFilterInputBus(String aName, @Nullable String oreFilter, int aTier, String[] aDescription, ITexture[][][] aTextures) {
+    public TST_Hatch_OreDictInputBus(String aName, @Nullable String oreFilter, int aTier, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, SLOT_COUNT * 2 + 2, aDescription, aTextures);
         this.oreFilter = oreFilter;
         disableSort = true;
@@ -120,9 +123,14 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
     }
 
     @Override
-    public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        super.onPreTick(aBaseMetaTileEntity, aTick);
+    public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
+        super.onFirstTick(aBaseMetaTileEntity);
         getProxy().onReady();
+    }
+
+    @Override
+    public AECableType getCableConnectionType(ForgeDirection forgeDirection) {
+        return isOutputFacing(forgeDirection) ? AECableType.SMART : AECableType.NONE;
     }
 
     private void setOreFilter(@Nullable String filter) {
@@ -266,7 +274,7 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
         ItemStack circuit = GTUtility.loadItem(nbt, "circuit");
         if (GTUtility.isStackInvalid(circuit)) circuit = null;
 
-        if (!oreFilter.isEmpty()) {
+        if (hasOreFilter()) {
             setOreFilter(nbt.getString("oreFilter"));
             // Data sticks created before refreshTime was implemented should not cause stocking buses to
             // spam divide by zero errors
@@ -405,7 +413,7 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
 
     @Override
     public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-        return new TST_Hatch_OreFilterInputBus(mName, oreFilter, mTier, mDescriptionArray, mTextures);
+        return new TST_Hatch_OreDictInputBus(mName, oreFilter, mTier, mDescriptionArray, mTextures);
     }
 
     @Override
@@ -489,8 +497,8 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
                         @Override
                         public IDrawable[] getBackground() {
                             IDrawable slot;
+                            //TODO 修改材质
                             if (hasOreFilter()) {
-                                //TODO 修改材质
                                 slot = GTUITextures.SLOT_DARK_GRAY;
                             } else {
                                 slot = ModularUITextures.ITEM_SLOT;
@@ -542,20 +550,20 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
                     .setSize(12, 12));
 
         builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
-                    if (!widget.isClient()) {
-                        widget.getContext().openSyncedWindow(CONFIG_WINDOW_ID);
-                    }
-                })
-                //TODO 修改材质
-                .setBackground(() -> new IDrawable[] {
-                    GTUITextures.BUTTON_STANDARD,
-                    GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED })
-                .addTooltips(
-                    Arrays.asList(
-                        StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1"),
-                        StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.2")))
-                .setSize(16, 16)
-                .setPos(80, 10));
+                if (!widget.isClient()) {
+                    widget.getContext().openSyncedWindow(CONFIG_WINDOW_ID);
+                }
+            })
+            //TODO 修改材质
+            .setBackground(() -> new IDrawable[]{
+                GTUITextures.BUTTON_STANDARD,
+                GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED})
+            .addTooltips(
+                Arrays.asList(
+                    StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1"),
+                    StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.2")))
+            .setSize(16, 16)
+            .setPos(80, 10));
 
         builder.widget(TextWidget.dynamicString(() -> {
                     boolean isActive = isActive();
@@ -595,7 +603,7 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
             .widget(new TextFieldWidget()
                 .setSetter(st -> oreFilter = st)
                 .setGetter(() -> {
-                    if (hasOreFilter()){
+                    if (hasOreFilter()) {
                         return oreFilter;
                     } else {
                         return "";
@@ -609,7 +617,7 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
                         //TODO 修改i18n
                         StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1")))
                 .setPos(3, 26)
-                .setSize(150, 18)
+                .setSize(74, 14)
                 .attachSyncer(new FakeSyncWidget.StringSyncer(() -> oreFilter, this::setOreFilter), builder));
         builder.widget(
                 TextWidget.localised("GT5U.machines.stocking_bus.refresh_time")
@@ -639,6 +647,68 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
                     .setSize(16, 16)
                     .addTooltip(StatCollector.translateToLocal("GT5U.machines.stocking_bus.hatch_warning")));
         return builder.build();
+    }
+
+    @Override
+    public int getCircuitSlot() {
+        return SLOT_COUNT * 2;
+    }
+
+    @Override
+    public int getCircuitSlotX() {
+        return 80;
+    }
+
+    @Override
+    public int getCircuitSlotY() {
+        return 64;
+    }
+
+    @Override
+    public boolean setStackToZeroInsteadOfNull(int aIndex) {
+        return aIndex != getManualSlot();
+    }
+
+    @Override
+    public void setInventorySlotContents(int aIndex, ItemStack aStack) {
+        if (expediteRecipeCheck && aStack != null) {
+            justHadNewItems = true;
+        }
+        super.setInventorySlotContents(aIndex, aStack);
+    }
+
+    @Override
+    public void onExplosion() {
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            mInventory[i] = null;
+        }
+    }
+
+    @Override
+    public boolean isValidSlot(int aIndex) {
+        return aIndex == getManualSlot();
+    }
+
+    @Override
+    public void addGregTechLogo(ModularWindow.Builder builder) {
+        builder.widget(
+            new DrawableWidget().setDrawable(getGUITextureSet().getGregTechLogo())
+                .setSize(17, 17)
+                .setPos(80, 63));
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+                             IWailaConfigHandler config) {
+
+        NBTTagCompound tag = accessor.getNBTData();
+        String oreFilter = "";
+        if (tag.hasKey("oreFilter")) {
+            oreFilter = tag.getString("oreFilter");
+        }
+        currenttip.add(
+            StatCollector.translateToLocalFormatted("TST.waila.ore_dict_stocking_bus.orefilter", oreFilter));
+        super.getWailaBody(itemStack, currenttip, accessor, config);
     }
 
     private int getManualSlot() {
@@ -689,21 +759,21 @@ public class TST_Hatch_OreFilterInputBus extends MTEHatchInputBus implements ICo
     }
 
     //TODO 修改描述
-    private static String[] getDescriptionArray(String oreFilter) {
+    private static String[] getDescriptionArray() {
         List<String> strings = new ArrayList<>(8);
         strings.add("Advanced item input for Multiblocks");
         strings.add("Hatch Tier: " + TIER_COLORS[14] + VN[14]);
         strings.add("Retrieves directly from ME");
         strings.add("Keeps 16 item types in stock");
 
-        if (oreFilter != null && !oreFilter.isEmpty()) {
-            strings.add(
-                "Auto-Pull from ME mode will automatically stock the first 16 items in the ME system, updated every 5 seconds.");
-            strings.add("Toggle by right-clicking with screwdriver, or use the GUI.");
-            strings.add(
-                "Use the GUI to limit the minimum stack size for Auto-Pulling, adjust the slot refresh timer and enable fast recipe checks.");
-            strings.add("WARNING: Fast recipe checks can be laggy. Use with caution.");
-        }
+
+//        strings.add(
+//            "Auto-Pull from ME mode will automatically stock the first 16 items in the ME system, updated every 5 seconds.");
+//        strings.add("Toggle by right-clicking with screwdriver, or use the GUI.");
+//        strings.add(
+//            "Use the GUI to limit the minimum stack size for Auto-Pulling, adjust the slot refresh timer and enable fast recipe checks.");
+//        strings.add("WARNING: Fast recipe checks can be laggy. Use with caution.");
+
 
         strings.add("Change ME connection behavior by right-clicking with wire cutter.");
         strings.add("Configuration data can be copy+pasted using a data stick.");
